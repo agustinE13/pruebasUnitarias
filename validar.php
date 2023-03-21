@@ -1,18 +1,19 @@
 <?php
 session_start();
 include("config.php");
-// Conectar a la base de datos
+
+// Conectar a la base de datos usando la información de configuración del archivo config.php
 try {
   $pdo = new PDO(DBDRIVER . ':host=' . DBHOST . ';dbname=' . DBNAME . ';port=' . DBPORT, DBUSER, DBPASS);
 } catch (PDOException $e) {
   die("Error al conectar a la base de datos: " . $e->getMessage());
 }
 
-// Obtener el correo electrónico y la contraseña ingresados
+// Obtener el correo electrónico y la contraseña ingresados mediante el método POST
 $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
 $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
 
-// Verificar si el correo electrónico y la contraseña son válidos
+// Verificar si el correo electrónico y la contraseña son válidos en la base de datos
 $consulta = "SELECT * FROM usuario WHERE correo=:email AND contrasenia=:password";
 $stmt = $pdo->prepare($consulta);
 $stmt->bindParam(':email', $email);
@@ -25,9 +26,8 @@ if (!$usuario) {
   $_SESSION['mensaje_error'] = 'Correo electrónico o contraseña incorrectos';
   header('Location: login.php');
   die();
-} else {    // Si las credenciales son correctas, almacenar el tipo de usuario en una variable de sesión
+} else {
+  // Si las credenciales son correctas, almacenar el tipo de usuario en una variable de sesión y redirigir al usuario a la página de inicio
   $_SESSION['id_cat_usuario'] = $usuario['id_cat_usuario'];
-   header('Location: header.php');
-  
-  }
-
+  header('Location: header.php');
+}
